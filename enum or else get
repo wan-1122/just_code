@@ -2,7 +2,7 @@
 	
 	/**
 	 * <pre>
-	 * {@code xxx.<Test, Integer>enumValueOrElseGet(null
+	 * {@code xxx.<Test, Integer>enumOrElseGet(null
 	    		, x -> {
 	    			return x.test2;
 	    		}, 11)
