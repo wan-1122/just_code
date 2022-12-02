@@ -42,3 +42,38 @@
         });
         return source.stream().collect(collector);
 	}
+	
+	
+	test code
+		List<Test> list = new ArrayList<>();
+		list.add(new Test("1111", "22222", "4444"));
+		list.add(new Test("2222", "22222", "5555"));
+		list.add(new Test("1111", "3333", "6666"));
+		Map<String, List<Test>> aaMap = DailyOptionJob.<String, Test>listToMapList(list, t -> t.getTest1());
+		System.out.println(aaMap);
+		
+		Map<String, Test> aaMap2 = DailyOptionJob.<String, Test>listToMap(list, t -> {
+			return t.getTest1() + "_" + t.getTest2();
+		});
+		System.out.println(aaMap2);
+		
+		Map<String, String> aaMap3 = DailyOptionJob.<String, Test, String>listToMap(list
+				, x -> {
+					return x.getTest1();
+				}
+				, x -> {
+					return x.getTest2();
+				}
+		);
+		System.out.println(aaMap3);
+		
+		Map<String, List<String>> aaMap4 = DailyOptionJob.<String, Test, String>listToMapList(list
+				, x -> {
+					return x.getTest1();
+				}
+				, x -> {
+					return x.getTest3();
+				}
+		);
+		System.out.println(aaMap4);
+	
