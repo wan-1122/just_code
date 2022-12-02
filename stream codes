@@ -1,0 +1,44 @@
+
+	
+	/**
+	 * map to list
+	 * <pre>
+	 * {@code Map<String, List<Test>> map = <String, Test>listToMapList(list, t -> t.getTest1()) }
+	 * </pre>
+	 * @param source
+	 * @param classifier key
+	 * @return
+	 */
+	public static <Key, Value> Map<Key, List<Value>> listToMapList(List<Value> source, Function<Value, Key> classifier) {
+//		Stream<Value> stream = datas.stream();
+        Collector<Value, ?, Map<Key, List<Value>>> collector = Collectors.groupingBy(classifier);
+        return source.stream().collect(collector);
+	}
+	
+	/**
+	 * map to list
+	 * <pre>
+	 * {@code Map<String, List<String>> map = <String, Test, String>listToMapList(new ArrayList<Test>, t -> t.getTest1(), t-> t.getTest2()) }
+	 * </pre>
+	 * @param source
+	 * @param classifier key
+	 * @return
+	 */
+	public static <Key, Value, ReturnValue> Map<Key, List<ReturnValue>> listToMapList(List<Value> source, Function<Value, Key> classifier, Function<Value, ReturnValue> resultClassifier) {
+        Collector<Value, ?, Map<Key, List<ReturnValue>>> collector = Collectors.groupingBy(classifier, Collectors.mapping(resultClassifier, Collectors.toList()));
+        return source.stream().collect(collector);
+	}
+	
+	public static <Key, Value> Map<Key, Value> listToMap(List<Value> source, Function<Value, Key> keyMapper) {
+        Collector<Value, ?, Map<Key, Value>> collector = Collectors.toMap(keyMapper, Function.identity(), (x1, x2) -> {
+        	return x1;
+        });
+        return source.stream().collect(collector);
+	}
+	
+	public static <Key, Value, ReturnValue> Map<Key, ReturnValue> listToMap(List<Value> source, Function<Value, Key> keyMapper, Function<Value, ReturnValue> valueMapper) {
+        Collector<Value, ?, Map<Key, ReturnValue>> collector = Collectors.toMap(keyMapper, valueMapper, (x1, x2) -> {
+        	return x1;
+        });
+        return source.stream().collect(collector);
+	}
