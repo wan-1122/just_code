@@ -1,0 +1,24 @@
+
+	
+	/**
+	 * <pre>
+	 * {@code xxx.<Test, Integer>enumValueOrElseGet(null
+	    		, x -> {
+	    			return x.test2;
+	    		}, 11)
+	     }
+	 * </pre>
+	 * @param test
+	 * @param code
+	 * @param defaultValue
+	 * @return
+	 */
+	public static <E, V> V enumOrElseGet(E enum, Function<E, V> classifier, V defaultValue) {
+		if (enum == null) {
+			return defaultValue;
+		}
+		return classifier.apply(enum);
+	}
+  
+  
+  
