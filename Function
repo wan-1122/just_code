@@ -75,6 +75,29 @@
 	    	return new TestClassNew("tmp1", "tmp2");
 	    });
 	    System.out.println(class2);
+	    
+	    
+	    
+	    /////
+	    Map<String, List<TestClassNew>> map2 = ConvertUtils.<String, TestClass, TestClassNew>listToMapList(list, x -> {
+	    	return x.getTest1();
+	    }, x -> {
+	    	return new TestClassNew(x.getTest1(), x.getTest2());
+	    });
+	    System.out.println(map2);
+	    
+	    ConvertUtils.<Map<String, List<TestClassNew>>, List<TestClassNew>>orElse(map2, x -> {
+	    	return x.get("test1");
+	    }, Collections.emptyList());
+	    
+	    /**
+	     * 
+	     */
+	    List<TestClassNew> mapList2 = ConvertUtils.orElse(map2, x -> {
+	    	return x.get("test1");
+	    }, Collections.emptyList());
+	    
+	    System.out.println(mapList2);
 	    //example:E
 	
 	
