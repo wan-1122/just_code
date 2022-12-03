@@ -1,0 +1,53 @@
+
+	
+	
+	
+	/**
+	 * <pre>
+	 * {@code xxx.<Test, Integer>orElse(null
+	    		, x -> {
+	    			return x.test2;
+	    		}, 11)
+	     }
+	 * </pre>
+	 * @param test
+	 * @param code
+	 * @param defaultValue
+	 * @return
+	 */
+	public static <E, V> V orElse(E test, Function<E, V> code, V defaultValue) {
+		if (test == null) {
+			return defaultValue;
+		}
+		return code.apply(test);
+	}
+	
+	/**
+	 * 
+	 * <pre>
+	 * {@code xxx.<Test, Integer>orElseGet(null
+	    		, x -> {
+	    			return x.test2;
+	    		}, () -> {
+	    			return 1;
+	    		})
+	     }
+	 * </pre>
+	 * @param test
+	 * @param code
+	 * @param supplier
+	 * @return
+	 */
+	public static <E, V> V orElseGet(E test, Function<E, V> code, Supplier<V> supplier) {
+		if (test == null) {
+			return supplier.get();
+		}
+		return code.apply(test);
+	}
+  
+Function //
+
+else와 elseGet의 차이는 supplier/
+
+optional 보고 비슷하게 만들면 될듯
+
