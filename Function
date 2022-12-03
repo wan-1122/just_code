@@ -44,6 +44,40 @@
 		}
 		return code.apply(test);
 	}
+	
+	
+	    //example:S
+	    System.out.println(ConvertUtils.<Test, Integer>orElse(null
+	    		, x -> {
+	    			return x.test2;
+	    		}, 11)
+	    );
+	    
+	    System.out.println(ConvertUtils.<Test, Integer>orElseGet(null
+	    		, x -> {
+	    			return x.test2;
+	    		}, () -> {
+	    			return 1;
+	    		})
+	    );
+	    
+	    List<TestClass> list = Arrays.asList(new TestClass[] { new TestClass("test1", "test2") });
+	    
+	    TestClassNew class1 = ConvertUtils.<TestClass, TestClassNew>orElse(null, x -> {
+	    	return new TestClassNew(x.getTest1(), x.getTest2());
+	    }, null);
+	    
+	    System.out.println(class1);
+	    
+	    TestClassNew class2 = ConvertUtils.<TestClass, TestClassNew>orElseGet(list.get(0), x -> {
+	    	return new TestClassNew(x.getTest1(), x.getTest2());
+	    }, () -> {
+	    	return new TestClassNew("tmp1", "tmp2");
+	    });
+	    System.out.println(class2);
+	    //example:E
+	
+	
   
 Function //
 
