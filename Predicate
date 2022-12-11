@@ -59,21 +59,9 @@ System.out.println(p.test(null) ? "Y" : "N")); -> Y
 
 
 1. vo.setValue1(Utils.matchOrElse(p.test(vo.getValue1()), "Y", "N"));
--> 길다 
 
 2. vo.setValue1(Utils.matchOrElse(vo.getValue1(), p, "Y", "N"));
--> 길다 
 
 3. vo.setValue1(p.test(vo.getValue1()) ? "Y" : "N"));
--> 길이로 이득
 
 4. vo.setValue1(Utils.matchOrElse(vo.getValue1(), (x) -> allows.contains(x == null ? x : x.toLowerCase()), "Y", "N"));
--> 존나 길다 탈락/
-
-args가 3개 부터 그지같긴하다. 쓰란겨 말란겨? 소리 나올 듯...;
-
-그래서 of(new 숨김) 쓰고 method로 처리하나보다..;;
-
-
-ps.
-method 이득이 없다. 그냥 알아서 할게//
