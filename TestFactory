@@ -1,0 +1,171 @@
+1. service, vo
+package test.factory;
+
+import java.util.List;
+
+import test.factory.vo.SaveDataVO;
+
+public abstract class AbstractService<T> {
+	@SuppressWarnings("unchecked")
+	public void execute(Object t) {
+		List<SaveDataVO> list = parse((T) t);
+		
+		save(list);
+	}
+	
+	private void save(List<SaveDataVO> list) {
+		System.out.println("save.." + list);
+	}
+	
+	protected abstract List<SaveDataVO> parse(T param);
+	
+}
+---
+package test.factory.impl;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
+import test.factory.AbstractService;
+import test.factory.vo.AParam;
+import test.factory.vo.SaveDataVO;
+
+public class AService extends AbstractService<AParam> {
+
+	@Override
+	public List<SaveDataVO> parse(AParam param) {
+		List<SaveDataVO> list = new ArrayList<>();
+		
+		list.add(new SaveDataVO("aparam ok " + param.getAa()));
+		
+		return list;
+	}
+	
+}
+---
+public class EventParam<T> {
+	private TestFactory.Operation operation;
+	private T t;
+	public T getT() {
+		return t;
+	}
+	public void setT(T t) {
+		this.t = t;
+	}
+	public TestFactory.Operation getOperation() {
+		return operation;
+	}
+	public void setOperation(TestFactory.Operation operation) {
+		this.operation = operation;
+	}
+}
+---
+
+
+2. factory
+public class TestFactory {
+	public enum Operation {
+		A,
+		B
+		;
+	}
+	
+	public static AbstractService<?> getService(TestFactory.Operation operation) {
+		AbstractService<?> service = null;
+		if (Operation.B == operation) {
+			service = new BService();
+		} else {
+			service = new AService();
+		}
+		return service;
+	}
+}
+
+3. run
+
+package test.factory;
+
+import test.factory.vo.AParam;
+import test.factory.vo.BParam;
+
+public class RunTest {
+	public static void main(String[] args) {
+		EventParam<AParam> param = new EventParam<>();
+		param.setOperation(TestFactory.Operation.A);
+		param.setT(new AParam("aaaaa"));
+		
+		RunTest runTest = new RunTest();
+		runTest.execute(param);
+		
+		EventParam<BParam> param2 = new EventParam<>();
+		param2.setOperation(TestFactory.Operation.B);
+		param2.setT(new BParam("bbbbb"));
+		
+		runTest.execute(param2);
+		
+		param2 = new EventParam<>();
+		param2.setOperation(TestFactory.Operation.B);
+		param2.setT(new BParam("bbbbb3333"));
+		
+		runTest.execute(param2);
+		
+	}
+	
+	/**
+	 * 
+	 * <pre>
+	 * {@code
+	 * EventParam<AParam> event = new EventParam<>();
+	 * event.setOperation(TestFactory.Operation.A);
+	 * event.setT(new AParam("aaaaa"));
+	 * 
+	 * RunTest runTest = new RunTest();
+	 * runTest.execute(event);
+	 * 
+	 * EventParam<BParam> event = new EventParam<>();
+	 * event.setOperation(TestFactory.Operation.B);
+	 * event.setT(new BParam("bbbb"));
+	 * 
+	 * RunTest runTest = new RunTest();
+	 * runTest.execute(event);
+	 * }
+	 * </pre>
+	 * 
+	 * @param event
+	 */
+	public <T> void execute(EventParam<T> event) {
+		AbstractService<?> service = TestFactory.getService(event.getOperation());
+		if (service == null) {
+			return;
+		}
+		service.execute(event.getT());
+	}
+}
+
+
+4. TODO
+1) SPRING EVENT
+@EventListener(class = EventParam.class)
+public void execute(EventParam event) {
+  AbstractService<?> service = TestFactory.getService(event.getOperation());
+   if (service == null) {
+    return;
+  }
+  service.execute(event.getT());
+  //
+}
+
+2) Kafka
+안 해봐서 모르지만 이럴 듯
+
+topics 정의를 제대로 하고 시작해야할듯? 
+
+	@KafkaListener(topics = "event")
+	public void execute(@Payload EventParam event){
+		AbstractService<?> service = TestFactory.getService(event.getOperation());
+   if (service == null) {
+    return;
+  }
+  service.execute(event.getT());
+	}
