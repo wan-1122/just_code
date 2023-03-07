@@ -1,101 +1,143 @@
+package trading.util;
+
+import java.util.Objects;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 public class BigDecimalSupport {
-    @Getter
-    private BigDecimal value;
+	private BigDecimal value;
 
-    private ScaleConfig scaleConfig;
-    private DivideConfig divideConfig;
+	private DivideConfig divideConfig;
 
-    public static BigDecimalSupport builder(BigDecimal value) {
-        BigDecimalSupport support = new BigDecimalSupport();
-        support.value = value == null ? BigDecimal.ZERO : value;
-        support.scaleConfig = new BigDecimalSupport.ScaleConfig(0, RoundingMode.DOWN);
-        support.divideConfig = new BigDecimalSupport.DivideConfig(0, RoundingMode.HALF_UP);
-        return support;
+    //Builder Class
+    public static class BigDecimalBuilder {
+    	public static BigDecimalSupport build() {
+    		BigDecimalSupport support = new BigDecimalSupport();
+    		support.divideConfig = new BigDecimalSupport.DivideConfig(36, RoundingMode.DOWN);
+    		return support;
+    	}
+
+    	public static BigDecimalSupport build(int scale, RoundingMode roundingMode) {
+    		Objects.requireNonNull(scale, "scale not null!!");
+    		Objects.requireNonNull(roundingMode, "roundingMode not null!!");
+    		
+    		BigDecimalSupport support = new BigDecimalSupport();
+    		support.divideConfig = new BigDecimalSupport.DivideConfig(scale, roundingMode);
+    		return support;
+    	}
+ 
     }
 
-    public BigDecimalSupport defaultScale(int scale, RoundingMode roundingMode) {
-        this.scaleConfig = new ScaleConfig(scale, roundingMode);
-        return this;
-    }
+	public BigDecimalSupport value(BigDecimal value) {
+		this.value = value == null ? BigDecimal.ZERO : value;
+		return this;
+	}
 
-    public BigDecimalSupport defaultDivide(int scale, RoundingMode roundingMode) {
-        this.divideConfig = new DivideConfig(scale, roundingMode);
-        return this;
-    }
+	public BigDecimalSupport add(BigDecimal value) {
+		this.value = this.value.add(value == null ? BigDecimal.ZERO : value);
+		return this;
+	}
 
-    public BigDecimalSupport add(BigDecimal value) {
-        this.value = this.value.add(value == null ? BigDecimal.ZERO : value);
-        return this;
-    }
+	public BigDecimalSupport subtract(BigDecimal value) {
+		this.value = this.value.subtract(value == null ? BigDecimal.ZERO : value);
+		return this;
+	}
 
-    public BigDecimalSupport subtract(BigDecimal value) {
-        this.value = this.value.subtract(value == null ? BigDecimal.ZERO : value);
-        return this;
-    }
+	public BigDecimalSupport multiply(BigDecimal value) {
+		if (value == null || value.equals(BigDecimal.ZERO)) {
+			this.value = BigDecimal.ZERO;
+		} else {
+			this.value = this.value.multiply(value);
+		}
+		return this;
+	}
 
-    public BigDecimalSupport multiply(BigDecimal value) {
-        if (value == null || value.equals(BigDecimal.ZERO)) {
-            this.value = BigDecimal.ZERO;
-        } else {
-            this.value = this.value.multiply(value);
-        }
-        return this;
-    }
+	public BigDecimalSupport divide(BigDecimal divisor) {
+		if (divisor == null || divisor.equals(BigDecimal.ZERO)) {
+			this.value = BigDecimal.ZERO;
+		} else {
+			this.value = this.value.divide(divisor, this.divideConfig.getScale(), this.divideConfig.getRoundingMode());
+		}
+		return this;
+	}
 
-    public BigDecimalSupport divide(BigDecimal divisor) {
-        if (divisor == null || divisor.equals(BigDecimal.ZERO)) {
-            this.value = BigDecimal.ZERO;
-        } else {
-            this.value = this.value.divide(divisor, this.divideConfig.getScale(), this.divideConfig.getRoundingMode());
-        }
-        return this;
-    }
+	public BigDecimalSupport divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
+		if (divisor == null || divisor.equals(BigDecimal.ZERO)) {
+			this.value = BigDecimal.ZERO;
+		} else {
+			this.value = this.value.divide(divisor, scale, roundingMode);
+		}
+		return this;
+	}
 
-    public BigDecimalSupport divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
-        if (divisor == null || divisor.equals(BigDecimal.ZERO)) {
-            this.value = BigDecimal.ZERO;
-        } else {
-            this.value = this.value.divide(divisor, scale, roundingMode);
-        }
-        return this;
-    }
+	public BigDecimalSupport setScale(int newScale, RoundingMode roundingMode) {
+		this.value = this.value.setScale(newScale, roundingMode);
+		return this;
+	}
 
-    public BigDecimalSupport setScale(int newScale, RoundingMode roundingMode) {
-        this.value = this.value.setScale(newScale, roundingMode);
-        return this;
-    }
+	public BigDecimalSupport clear() {
+		this.value = BigDecimal.ZERO;
+		return this;
+	}
 
-    public BigDecimal get(int scale, RoundingMode roundingMode) {
-        return this.value.setScale(scale, roundingMode);
-    }
+	public BigDecimal getValue(int scale, RoundingMode roundingMode) {
+		return this.value.setScale(scale, roundingMode);
+	}
 
-    @Getter
-    @Setter
-    private static class ScaleConfig {
-        private int scale;
-        private RoundingMode roundingMode;
+	public BigDecimal getValue() {
+		return this.value;
+	}
 
-        public ScaleConfig(int scale, RoundingMode roundingMode) {
-            this.scale = scale;
-            this.roundingMode = roundingMode;
-        }
-    }
+	private static class DivideConfig {
+		private int scale;
+		private RoundingMode roundingMode;
 
-    @Getter
-    @Setter
-    private static class DivideConfig {
-        private int scale;
-        private RoundingMode roundingMode;
+		public DivideConfig(int scale, RoundingMode roundingMode) {
+			this.scale = scale;
+			this.roundingMode = roundingMode;
+		}
 
-        public DivideConfig(int scale, RoundingMode roundingMode) {
-            this.scale = scale;
-            this.roundingMode = roundingMode;
-        }
-    }
+		public int getScale() {
+			return scale;
+		}
+
+		public RoundingMode getRoundingMode() {
+			return roundingMode;
+		}
+	}
+	
+	public static void main(String[] args) {
+		BigDecimalSupport support = BigDecimalBuilder.build(36, RoundingMode.DOWN);
+		
+		System.out.println(support.value(new BigDecimal(1)).add(new BigDecimal(100)).divide(new BigDecimal(3)).getValue(2, RoundingMode.HALF_UP));
+		support.clear();
+		
+		System.out.println(support.value(new BigDecimal(100)).subtract(new BigDecimal(100)).divide(new BigDecimal(3)).getValue(0, RoundingMode.DOWN));
+		support.clear();
+
+		System.out.println(support.value(new BigDecimal(100)).subtract(null).divide(new BigDecimal(3)).getValue(0, RoundingMode.DOWN));
+		support.clear();
+
+		System.out.println(support.value(null).subtract(new BigDecimal(11)).divide(new BigDecimal(3)).getValue(4, RoundingMode.DOWN));
+		support.clear();
+
+		System.out.println(support.value(null).multiply(new BigDecimal(11)).divide(new BigDecimal(3)).getValue(4, RoundingMode.DOWN));
+		support.clear();
+
+		System.out.println(support.value(null).add(new BigDecimal(11)).divide(new BigDecimal(3), 2, RoundingMode.UP).multiply(new BigDecimal(3.3)).getValue(4, RoundingMode.DOWN));
+		support.clear();
+		
+		
+	}
 }
-#BigDecimal 처리 시 null 0 처리하면 코드가 난잡해짐
 
-BigDecimalSupport.builder(11).defaultDivide(0, RoundingMode.DOWN).add(22).get()//33
-BigDecimalSupport.builder(11).defaultDivide(0, RoundingMode.DOWN).add(22).div.divide(2).get()
-BigDecimalSupport.builder(11).defaultDivide(0, RoundingMode.DOWN).add(22).div.divide(2).get(2, RoundingMode.DOWN);
-...
+
+#BigDecimal 처리 시 null 0 처리하면 코드가 난잡해짐
+a = new BigDecimal(11);
+a = a.add(new BigDecimal(10));
+=>
+support.value(11).getValue().add(new BigDecimal(10));//support.value = 11
+support.value(11).add(20);//support.value = 31
+
+이것도 참..;
