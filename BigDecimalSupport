@@ -1,0 +1,101 @@
+public class BigDecimalSupport {
+    @Getter
+    private BigDecimal value;
+
+    private ScaleConfig scaleConfig;
+    private DivideConfig divideConfig;
+
+    public static BigDecimalSupport builder(BigDecimal value) {
+        BigDecimalSupport support = new BigDecimalSupport();
+        support.value = value == null ? BigDecimal.ZERO : value;
+        support.scaleConfig = new BigDecimalSupport.ScaleConfig(0, RoundingMode.DOWN);
+        support.divideConfig = new BigDecimalSupport.DivideConfig(0, RoundingMode.HALF_UP);
+        return support;
+    }
+
+    public BigDecimalSupport defaultScale(int scale, RoundingMode roundingMode) {
+        this.scaleConfig = new ScaleConfig(scale, roundingMode);
+        return this;
+    }
+
+    public BigDecimalSupport defaultDivide(int scale, RoundingMode roundingMode) {
+        this.divideConfig = new DivideConfig(scale, roundingMode);
+        return this;
+    }
+
+    public BigDecimalSupport add(BigDecimal value) {
+        this.value = this.value.add(value == null ? BigDecimal.ZERO : value);
+        return this;
+    }
+
+    public BigDecimalSupport subtract(BigDecimal value) {
+        this.value = this.value.subtract(value == null ? BigDecimal.ZERO : value);
+        return this;
+    }
+
+    public BigDecimalSupport multiply(BigDecimal value) {
+        if (value == null || value.equals(BigDecimal.ZERO)) {
+            this.value = BigDecimal.ZERO;
+        } else {
+            this.value = this.value.multiply(value);
+        }
+        return this;
+    }
+
+    public BigDecimalSupport divide(BigDecimal divisor) {
+        if (divisor == null || divisor.equals(BigDecimal.ZERO)) {
+            this.value = BigDecimal.ZERO;
+        } else {
+            this.value = this.value.divide(divisor, this.divideConfig.getScale(), this.divideConfig.getRoundingMode());
+        }
+        return this;
+    }
+
+    public BigDecimalSupport divide(BigDecimal divisor, int scale, RoundingMode roundingMode) {
+        if (divisor == null || divisor.equals(BigDecimal.ZERO)) {
+            this.value = BigDecimal.ZERO;
+        } else {
+            this.value = this.value.divide(divisor, scale, roundingMode);
+        }
+        return this;
+    }
+
+    public BigDecimalSupport setScale(int newScale, RoundingMode roundingMode) {
+        this.value = this.value.setScale(newScale, roundingMode);
+        return this;
+    }
+
+    public BigDecimal get(int scale, RoundingMode roundingMode) {
+        return this.value.setScale(scale, roundingMode);
+    }
+
+    @Getter
+    @Setter
+    private static class ScaleConfig {
+        private int scale;
+        private RoundingMode roundingMode;
+
+        public ScaleConfig(int scale, RoundingMode roundingMode) {
+            this.scale = scale;
+            this.roundingMode = roundingMode;
+        }
+    }
+
+    @Getter
+    @Setter
+    private static class DivideConfig {
+        private int scale;
+        private RoundingMode roundingMode;
+
+        public DivideConfig(int scale, RoundingMode roundingMode) {
+            this.scale = scale;
+            this.roundingMode = roundingMode;
+        }
+    }
+}
+#BigDecimal 처리 시 null 0 처리하면 코드가 난잡해짐
+
+BigDecimalSupport.builder(11).defaultDivide(0, RoundingMode.DOWN).add(22).get()//33
+BigDecimalSupport.builder(11).defaultDivide(0, RoundingMode.DOWN).add(22).div.divide(2).get()
+BigDecimalSupport.builder(11).defaultDivide(0, RoundingMode.DOWN).add(22).div.divide(2).get(2, RoundingMode.DOWN);
+...
