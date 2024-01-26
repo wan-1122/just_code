@@ -1,0 +1,24 @@
+
+public class LocalDateUtil {
+	private LocalDateUtil() {
+	}
+	
+	public static boolean isOverYear(LocalDate start, LocalDate end, int year) {
+		return start.plusYears(year).compareTo(end) < 0;
+	}
+	
+	public static boolean isOverMonth(LocalDate start, LocalDate end, int month) {
+		return start.plusMonths(month).compareTo(end) < 0;
+	}
+	
+	public static boolean isOverDay(LocalDate start, LocalDate end, int day) {
+		return start.plusDays(day).compareTo(end) < 0;
+	}
+
+	public static void main(String[] args) {
+//		System.out.println(LocalDateUtil.isOverDay(LocalDate.of(2024, 1, 23), LocalDate.of(2024, 1, 22), 1));
+//		System.out.println(LocalDateUtil.isOverMonth(LocalDate.of(2023, 12, 23), LocalDate.of(2024, 1, 22), 1));
+		System.out.println(LocalDateUtil.isOverYear(LocalDate.of(2023, 1, 22), LocalDate.of(2024, 1, 22), 1));
+	}
+	
+}
