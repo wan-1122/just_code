@@ -1,0 +1,35 @@
+public class ModelMapperUtil {
+	private ModelMapperUtil() {
+	}
+	
+	private static ModelMapper getMapper() {
+		ModelMapper modelMapper = new ModelMapper();
+		
+		modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
+		
+		/**
+		 * 같은 class와 상속 class는 복제 안한다.
+		 */
+		//modelMapper.getConfiguration().setDeepCopyEnabled(true);
+		modelMapper.getConfiguration().setSkipNullEnabled(true);
+		modelMapper.getConfiguration().setFieldMatchingEnabled(true);
+		
+		return modelMapper;
+	}
+
+	public static <S, D> D convert(S source, Class<D> destinationType) {
+		if (source == null) {
+			return null;
+		}
+		return getMapper().map(source, destinationType);
+	}
+
+	public static <S, D> List<D> convert(List<S> list, Class<D> destinationType) {
+		if (list == null) {
+			return Collections.emptyList();
+		}
+		ModelMapper mapper = getMapper();
+		return list.stream().map(x -> mapper.map(x, destinationType)).collect(Collectors.toList());
+	}
+	
+}
