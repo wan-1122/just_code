@@ -1,0 +1,93 @@
+
+@Target({ METHOD, FIELD, ANNOTATION_TYPE, CONSTRUCTOR, PARAMETER, TYPE_USE })
+@Retention(RUNTIME)
+@Documented
+//@Constraint(validatedBy = { InputFieldStringValidator.class, InputFieldReportTypeValidator.class })
+public @interface Test {
+	String value();
+	
+	String message() default "%s";
+
+	Class<?>[] groups() default { };
+
+	Class<? extends Payload>[] payload() default { };
+
+	boolean isRequried() default false;
+
+	int byteLength() default 4000;
+	
+	int length() default 4000;
+
+}
+
+	@Bean
+	MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter() {
+		log.info("WebMvcConfig");
+		MappingJackson2HttpMessageConverter bean = new MappingJackson2HttpMessageConverter();
+		SimpleModule module = new SimpleModule();
+		module.addSerializer(Long.class, ToStringSerializer.instance);
+		module.addSerializer(String.class, new StringSerializer(null));
+		module.addDeserializer(String.class, new JsonHtmlXssDeserializer(null));
+		bean.getObjectMapper().registerModule(module);
+//		bean.getObjectMapper().getFactory().setCharacterEscapes(new XSSCharacterEscapes());
+//		bean.setSupportedMediaTypes(list);
+		return bean;
+	}
+
+	public static class StringSerializer extends StdSerializer<String> implements ContextualSerializer {
+		private final Annotations annotations;
+
+		public StringSerializer(Annotations annotations) {
+			super(String.class);
+			this.annotations = annotations;
+		}
+
+		@Override
+		public void serialize(String value, JsonGenerator gen, SerializerProvider provider) throws IOException {
+			if (annotations != null && value != null) {
+
+			}
+			gen.writeString(value);
+		}
+
+		@Override
+		public JsonSerializer<String> createContextual(SerializerProvider provider, com.fasterxml.jackson.databind.BeanProperty property) {
+			if (property != null && property.getMember() != null) {
+				AnnotatedMember member = property.getMember();
+				return new StringSerializer(member.getAllAnnotations());
+			}
+			return new StringSerializer(null);
+		}
+	}
+
+	public static class StringDeserializer extends StdDeserializer<String> implements ContextualDeserializer {
+		private final Annotations annotations;
+
+		public StringDeserializer(Annotations annotations) {
+			super(String.class);
+			this.annotations = annotations;
+		}
+		@Override
+		public String deserialize(final JsonParser jp, final DeserializationContext ctxt) throws IOException {
+			final JsonNode node = jp.getCodec().readTree(jp);
+
+      String rtnValue = node.asText();
+			if (annotations == null || ObjectUtils.isEmpty(rtnValue)) {
+				return rtnValue;
+			}
+			if (annotations.has(Test.class)) {
+				rtnValue = rtnValue.trim();
+			}
+			return rtnValue;
+		}
+
+		@Override
+		public JsonDeserializer<String> createContextual(DeserializationContext ctxt, BeanProperty property) {
+			if (property != null && property.getMember() != null) {
+				AnnotatedMember member = property.getMember();
+				return new StringDeserializer(member.getAllAnnotations());
+			}
+			return new StringDeserializer(null);
+		}
+
+	@Test(value = "제목", isRequried = true, byteLength = 1000)
