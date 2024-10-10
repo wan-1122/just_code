@@ -1,0 +1,34 @@
+server:
+  port: 8080  # 서버 포트 설정
+  tomcat:
+    threads:
+      max: 200        # 최대 스레드 수 (최대 동시 처리 요청 수)
+      min-spare: 20   # 최소 유휴 스레드 수 (항상 유지할 최소 대기 스레드 수)
+    accept-count: 100 # 최대 대기 요청 수 (스레드 부족 시 대기할 수 있는 요청 수)
+    max-connections: 10000 # 톰캣에서 허용할 최대 연결 수
+    connection-timeout: 20000 # 연결 타임아웃 (밀리초 단위, 20초)
+    max-keep-alive-requests: 100 # 하나의 연결에서 허용하는 최대 요청 수
+
+    # Keep-Alive 설정
+    keep-alive-timeout: 5000 # Keep-Alive 연결에서 다음 요청을 기다리는 시간 (밀리초)
+
+    # HTTP/2 지원 (필요시)
+    protocol-header: X-Forwarded-Proto
+    remote-ip-header: X-Forwarded-For
+    internal-proxies: 192\.168\.\d{1,3}\.\d{1,3}|10\.\d{1,3}\.\d{1,3}\.\d{1,3}|127\.\d{1,3}\.\d{1,3}\.\d{1,3}
+    
+  # Compression 설정
+  compression:
+    enabled: true  # 응답 압축 사용 여부
+    mime-types: text/html,text/xml,text/plain,text/css,text/javascript,application/javascript,application/json
+    min-response-size: 2048 # 압축을 적용할 최소 응답 크기 (2KB 이상만 압축)
+
+# 비동기 요청 관련 설정
+spring:
+  task:
+    execution:
+      pool:
+        core-size: 10  # 기본 스레드 수 (비동기 작업)
+        max-size: 100  # 최대 스레드 수 (비동기 작업)
+        queue-capacity: 500 # 큐 용량 (비동기 작업 대기 가능 수)
+      thread-name-prefix: "Async-Executor-" # 스레드 이름 접두사 (비동기 스레드 구분)
