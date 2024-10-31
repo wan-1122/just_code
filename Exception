@@ -1,0 +1,51 @@
+
+	
+	@ExceptionHandler(ValidException.class)
+	public ResponseEntity<?> handleValidException(ValidException e, WebRequest request) {
+		HttpHeaders headers = new HttpHeaders();
+
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers)
+				.body("{\"error\": \"" + e.getMessage() + "\"}");
+	}
+	
+	@ExceptionHandler(ConstraintViolationException.class)
+	public ResponseEntity<?> handleConstraintViolationException(ConstraintViolationException e, WebRequest request) {
+		HttpHeaders headers = new HttpHeaders();
+
+		// 요청의 콘텐츠 타입 확인
+		String contentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
+		if (contentType == null) {
+			contentType = request.getHeader(HttpHeaders.ACCEPT);
+		}
+
+		ConstraintViolation<?> fieldError = e.getConstraintViolations().stream().findFirst().orElseThrow();
+		if (fieldError == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers)
+					.body("{\"error\": \"" + e.getMessage() + "\"}");
+		}
+		// 콘텐츠 타입에 따라 분기
+			// JSON 응답 생성
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers)
+				.body("{\"error\": \"" + fieldError.getMessage() + "\", \"field\": \"" + fieldError.getPropertyPath() + "\"}");
+	}
+	
+	@ExceptionHandler(MethodArgumentNotValidException.class)
+	public ResponseEntity<?> handleMethodArgumentNotValidException(MethodArgumentNotValidException e, WebRequest request) {
+		HttpHeaders headers = new HttpHeaders();
+
+		// 요청의 콘텐츠 타입 확인
+		String contentType = request.getHeader(HttpHeaders.CONTENT_TYPE);
+		if (contentType == null) {
+			contentType = request.getHeader(HttpHeaders.ACCEPT);
+		}
+
+		FieldError fieldError = e.getBindingResult().getFieldErrors().stream().findFirst().orElse(null);
+		if (fieldError == null) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers)
+					.body("{\"error\": \"" + e.getMessage() + "\"}");
+		}
+		// 콘텐츠 타입에 따라 분기
+			// JSON 응답 생성
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers)
+				.body("{\"error\": \"" + fieldError.getDefaultMessage() + "\", \"field\": \"" + fieldError.getField() + "\"}");
+	}
